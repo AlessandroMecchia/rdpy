@@ -53,29 +53,43 @@ def build_rdp_negotiation_request() -> bytes:
         + requested_protocols.to_bytes(4, "little")
     )
 
-    x224_payload = cookie + rdp_neg_req
-    x224_length = len(x224_payload) + 7
+    x224_data = (
+        b"\xe0"                                    # CR TPDU
+        b"\x00\x00"                                # Destination reference
+        b"\x00\x00"                                # Source reference
+        b"\x00"                                    # Class/options
+        + cookie
+        + rdp_neg_req
+    )
+    tpkt_length = 4 + 1 + len(x224_data)
 
     packet = (
         b"\x03\x00"                                  # TPKT version + reserved
-        + x224_length.to_bytes(2, "big")             # TPKT length
-        + bytes([x224_length - 5])                   # X.224 length
-        + b"\xe0"                                    # CR TPDU
-        + b"\x00\x00"                                # Destination reference
-        + b"\x00\x00"                                # Source reference
-        + b"\x00"                                    # Class/options
-        + x224_payload
+        + tpkt_length.to_bytes(2, "big")             # TPKT length
+        + bytes([len(x224_data)])                    # X.224 length indicator
+        + x224_data
     )
 
     return packet
 
 
 def parse_negotiation_response(data: bytes) -> tuple[str, str | None, bool | str, bool | str, str | None]:
-    if len(data) < 11:
+    if not data:
+        return "connection_closed", None, "unknown", "unknown", None
+
+    if len(data) < 7:
         return "invalid_or_short_response", None, "unknown", "unknown", None
 
     if not data.startswith(b"\x03\x00"):
         return "not_tpkt", None, "unknown", "unknown", None
+
+    tpkt_length = int.from_bytes(data[2:4], "big")
+    if tpkt_length < 7:
+        return "invalid_tpkt_length", None, "unknown", "unknown", None
+
+    x224_type = data[5] & 0xf0
+    if x224_type != 0xd0:
+        return "unexpected_x224_response", None, "unknown", "unknown", None
 
     for idx in range(0, len(data) - 7):
         msg_type = data[idx]
@@ -108,7 +122,7 @@ def parse_negotiation_response(data: bytes) -> tuple[str, str | None, bool | str
 
             return "failure", None, nla_required, tls_supported, failure
 
-    return "no_negotiation_structure_found", None, "unknown", "unknown", None
+    return "x224_connection_confirm", "standard_rdp", False, "unknown", None
 
 
 def probe_rdp(host: str, port: int, timeout: float = 3.0) -> RdpProbeResult:
@@ -126,7 +140,13 @@ def probe_rdp(host: str, port: int, timeout: float = 3.0) -> RdpProbeResult:
 
         return RdpProbeResult(
             tcp_reachable=True,
-            rdp_like_service=result not in ("not_tpkt", "invalid_or_short_response"),
+            rdp_like_service=result not in (
+                "not_tpkt",
+                "invalid_or_short_response",
+                "connection_closed",
+                "invalid_tpkt_length",
+                "unexpected_x224_response",
+            ),
             negotiation_result=result,
             selected_protocol=selected,
             nla_required=nla_required,

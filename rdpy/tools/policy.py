@@ -22,15 +22,16 @@ def evaluate_policy(result: dict, policy: dict) -> dict:
 
     host = result.get("host")
     reachable = result.get("tcp_reachable", False)
+    rdp_detected = result.get("rdp_detected", False)
     risk_score = result.get("risk", {}).get("score", 0)
 
-    if reachable and not allow_unknown_hosts and host not in approved_hosts:
+    if reachable and rdp_detected and not allow_unknown_hosts and host not in approved_hosts:
         violations.append("RDP is reachable on a non-approved host")
 
     if max_risk_score is not None and risk_score > max_risk_score:
         violations.append(f"Risk score {risk_score} exceeds maximum allowed value {max_risk_score}")
 
-    if require_nla:
+    if require_nla and reachable and rdp_detected:
         nla = result.get("nla_required")
         if nla is not True:
             message = "NLA requirement could not be verified"
@@ -39,7 +40,7 @@ def evaluate_policy(result: dict, policy: dict) -> dict:
             else:
                 violations.append(message)
 
-    if require_tls:
+    if require_tls and reachable and rdp_detected:
         tls = result.get("tls_supported")
         if tls is not True:
             message = "TLS requirement could not be verified"

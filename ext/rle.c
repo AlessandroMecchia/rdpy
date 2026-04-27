@@ -25,6 +25,7 @@
 /* *INDENT-OFF* */
 
 #include <Python.h>
+#include <limits.h>
 
 /* Specific rename for RDPY integration */
 #define uint8	unsigned char
@@ -923,12 +924,55 @@ bitmap_decompress_wrapper(PyObject* self, PyObject* args)
 {
 	Py_buffer output, input;
 	int width = 0, height = 0, bpp = 0;
+	Py_ssize_t expected_size;
+	RD_BOOL decompressed;
 
-	if (!PyArg_ParseTuple(args, "s*iis*i", &output, &width, &height, &input, &bpp))
+	if (!PyArg_ParseTuple(args, "w*iiy*i", &output, &width, &height, &input, &bpp))
 		return NULL;
 
-	if(bitmap_decompress((uint8*)output.buf, width, height, (uint8*)input.buf, input.len, bpp) == False)
+	if (width <= 0 || height <= 0 || bpp <= 0)
+	{
+		PyBuffer_Release(&input);
+		PyBuffer_Release(&output);
+		PyErr_SetString(PyExc_ValueError, "width, height, and bytes per pixel must be positive");
 		return NULL;
+	}
+
+	if (input.len > INT_MAX)
+	{
+		PyBuffer_Release(&input);
+		PyBuffer_Release(&output);
+		PyErr_SetString(PyExc_ValueError, "input buffer is too large");
+		return NULL;
+	}
+
+	if ((Py_ssize_t)width > PY_SSIZE_T_MAX / (Py_ssize_t)height ||
+	    (Py_ssize_t)width * (Py_ssize_t)height > PY_SSIZE_T_MAX / (Py_ssize_t)bpp)
+	{
+		PyBuffer_Release(&input);
+		PyBuffer_Release(&output);
+		PyErr_SetString(PyExc_ValueError, "requested bitmap is too large");
+		return NULL;
+	}
+
+	expected_size = (Py_ssize_t)width * height * bpp;
+	if (output.len < expected_size)
+	{
+		PyBuffer_Release(&input);
+		PyBuffer_Release(&output);
+		PyErr_SetString(PyExc_ValueError, "output buffer is too small");
+		return NULL;
+	}
+
+	decompressed = bitmap_decompress((uint8*)output.buf, width, height, (uint8*)input.buf, (int)input.len, bpp);
+	PyBuffer_Release(&input);
+	PyBuffer_Release(&output);
+
+	if(decompressed == False)
+	{
+		PyErr_SetString(PyExc_ValueError, "bitmap decompression failed");
+		return NULL;
+	}
 
 	Py_RETURN_NONE;
 }
@@ -938,10 +982,18 @@ static PyMethodDef rle_methods[] =
      {"bitmap_decompress", bitmap_decompress_wrapper, METH_VARARGS, "decompress bitmap from microsoft rle algorithm."},
      {NULL, NULL, 0, NULL}
 };
+
+static struct PyModuleDef rle_module =
+{
+     PyModuleDef_HEAD_INIT,
+     "rle",
+     NULL,
+     -1,
+     rle_methods
+};
  
 PyMODINIT_FUNC
-initrle(void)
+PyInit_rle(void)
 {
-     (void) Py_InitModule("rle", rle_methods);
+     return PyModule_Create(&rle_module);
 }
-

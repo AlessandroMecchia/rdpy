@@ -1,0 +1,123 @@
+[
+  {
+    "host": "127.0.0.1",
+    "port": 1,
+    "timestamp": "2026-04-27T17:49:53.902682Z",
+    "tcp_reachable": false,
+    "status": "closed_or_unreachable",
+    "response_time_ms": 2.01,
+    "rdp_detected": false,
+    "rdp_negotiation": "connection_refused",
+    "selected_protocol": null,
+    "tls_supported": "unknown",
+    "nla_required": "unknown",
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": "connection_refused",
+    "risk": {
+      "score": 0,
+      "level": "low",
+      "reasons": [
+        "RDP TCP port is not reachable"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "low",
+        "finding": "No major issue detected",
+        "recommendation": "Continue monitoring RDP exposure and compare future scans against a baseline."
+      }
+    ]
+  },
+  {
+    "host": "192.168.113.250",
+    "port": 3389,
+    "timestamp": "2026-04-27T17:49:56.911118Z",
+    "tcp_reachable": false,
+    "status": "closed_or_unreachable",
+    "response_time_ms": 3008.33,
+    "rdp_detected": false,
+    "rdp_negotiation": "timeout",
+    "selected_protocol": null,
+    "tls_supported": "unknown",
+    "nla_required": "unknown",
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": "timeout",
+    "risk": {
+      "score": 0,
+      "level": "low",
+      "reasons": [
+        "RDP TCP port is not reachable"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "low",
+        "finding": "No major issue detected",
+        "recommendation": "Continue monitoring RDP exposure and compare future scans against a baseline."
+      }
+    ]
+  },
+  {
+    "host": "192.168.113.4",
+    "port": 3389,
+    "timestamp": "2026-04-27T17:49:53.944230Z",
+    "tcp_reachable": true,
+    "status": "open",
+    "response_time_ms": 44.18,
+    "rdp_detected": true,
+    "rdp_negotiation": "ok",
+    "selected_protocol": "tls",
+    "tls_supported": true,
+    "nla_required": false,
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": null,
+    "risk": {
+      "score": 45,
+      "level": "medium",
+      "reasons": [
+        "RDP TCP port is reachable",
+        "RDP-like negotiation response detected",
+        "NLA status is false or unknown",
+        "Host is approved for RDP"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "medium",
+        "finding": "RDP service is reachable",
+        "recommendation": "Restrict RDP access to trusted networks, VPN, or a remote access gateway."
+      },
+      {
+        "priority": "low",
+        "finding": "RDP-like service detected",
+        "recommendation": "Maintain an approved inventory of systems allowed to expose RDP."
+      },
+      {
+        "priority": "medium",
+        "finding": "NLA status is false or unknown",
+        "recommendation": "Verify that Network Level Authentication is enabled where supported."
+      }
+    ]
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "field": "status",
+    "before": "closed_or_unreachable",
+    "after": "open",
+    "severity": "high",
+    "message": "New RDP exposure detected",
+    "target": "192.168.113.20:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "risk_score",
+    "before": 0,
+    "after": 80,
+    "severity": "medium",
+    "message": "Risk score increased",
+    "target": "192.168.113.20:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "policy_status",
+    "before": "pass",
+    "after": "fail",
+    "severity": "high",
+    "message": "Policy status changed to fail",
+    "target": "192.168.113.20:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "status",
+    "before": "closed_or_unreachable",
+    "after": "open",
+    "severity": "high",
+    "message": "New RDP exposure detected",
+    "target": "192.168.113.30:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "risk_score",
+    "before": 0,
+    "after": 45,
+    "severity": "medium",
+    "message": "Risk score increased",
+    "target": "192.168.113.30:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "status",
+    "before": "open",
+    "after": "closed_or_unreachable",
+    "severity": "info",
+    "message": "RDP service is no longer reachable",
+    "target": "192.168.113.40:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "risk_score",
+    "before": 100,
+    "after": 0,
+    "severity": "info",
+    "message": "Risk score decreased",
+    "target": "192.168.113.40:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "policy_status",
+    "before": "fail",
+    "after": "pass",
+    "severity": "info",
+    "message": "Policy status improved",
+    "target": "192.168.113.40:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "risk_score",
+    "before": 25,
+    "after": 50,
+    "severity": "medium",
+    "message": "Risk score increased",
+    "target": "192.168.113.4:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "selected_protocol",
+    "before": "credssp_nla",
+    "after": "tls",
+    "severity": "medium",
+    "message": "Selected RDP protocol changed",
+    "target": "192.168.113.4:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "nla_required",
+    "before": true,
+    "after": false,
+    "severity": "high",
+    "message": "NLA requirement weakened",
+    "target": "192.168.113.4:3389",
+    "change_type": "modified"
+  },
+  {
+    "field": "policy_status",
+    "before": "pass",
+    "after": "fail",
+    "severity": "high",
+    "message": "Policy status changed to fail",
+    "target": "192.168.113.4:3389",
+    "change_type": "modified"
+  },
+  {
+    "target": "192.168.113.50:3389",
+    "change_type": "removed",
+    "severity": "medium",
+    "message": "Target was present in baseline but missing in current scan"
+  },
+  {
+    "target": "192.168.113.60:3389",
+    "change_type": "added",
+    "severity": "medium",
+    "message": "Target is new in current scan"
+  }
+]

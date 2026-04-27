@@ -39,7 +39,7 @@ def audit_target(target: str, timeout: float, policy: dict, screenshot: bool = F
 
     result["risk"] = calculate_score(result, policy)
     result["policy"] = evaluate_policy(result, policy)
-    result["recommendations"] = generate_recommendations(result)
+    result["recommendations"] = generate_recommendations(result, policy)
 
     return result
 

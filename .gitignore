@@ -15,12 +15,3 @@ __pycache__/
 .pytest_cache/
 .vscode/
 *.log
-
-reports/*.json
-reports/*.html
-reports/screenshots/
-reports/plots/
-
-!reports/.gitkeep
-!reports/sample-current.json
-!reports/sample-report.html

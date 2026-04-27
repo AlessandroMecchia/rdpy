@@ -53,6 +53,66 @@ def classify_change(before, after):
             "message": message,
         })
 
+    if before_status == "open" and after_status == "open":
+        tracked_fields = [
+            ("rdp_detected", "RDP detection changed", "medium"),
+            ("selected_protocol", "Selected RDP protocol changed", "medium"),
+            ("nla_required", "NLA requirement changed", "medium"),
+            ("tls_supported", "TLS support changed", "medium"),
+        ]
+
+        for field, message, default_severity in tracked_fields:
+            before_value = before.get(field)
+            after_value = after.get(field)
+
+            if before_value == after_value:
+                continue
+
+            severity = default_severity
+
+            if field == "nla_required" and before_value is True and after_value is not True:
+                severity = "high"
+                message = "NLA requirement weakened"
+            elif field == "nla_required" and before_value is not True and after_value is True:
+                severity = "info"
+                message = "NLA requirement improved"
+            elif field == "tls_supported" and before_value is True and after_value is not True:
+                severity = "high"
+                message = "TLS support weakened"
+            elif field == "tls_supported" and before_value is not True and after_value is True:
+                severity = "info"
+                message = "TLS support improved"
+
+            changes.append({
+                "field": field,
+                "before": before_value,
+                "after": after_value,
+                "severity": severity,
+                "message": message,
+            })
+
+    before_policy = before.get("policy", {}).get("status")
+    after_policy = after.get("policy", {}).get("status")
+
+    if before_policy != after_policy:
+        if after_policy == "fail":
+            severity = "high"
+            message = "Policy status changed to fail"
+        elif before_policy == "fail" and after_policy != "fail":
+            severity = "info"
+            message = "Policy status improved"
+        else:
+            severity = "medium"
+            message = "Policy status changed"
+
+        changes.append({
+            "field": "policy_status",
+            "before": before_policy,
+            "after": after_policy,
+            "severity": severity,
+            "message": message,
+        })
+
     return changes
 
 

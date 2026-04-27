@@ -1,0 +1,235 @@
+[
+  {
+    "host": "192.168.113.4",
+    "port": 3389,
+    "timestamp": "2026-04-20T08:15:10Z",
+    "tcp_reachable": true,
+    "status": "open",
+    "response_time_ms": 31.42,
+    "rdp_detected": true,
+    "rdp_negotiation": "ok",
+    "selected_protocol": "credssp_nla",
+    "tls_supported": true,
+    "nla_required": true,
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": null,
+    "risk": {
+      "score": 25,
+      "level": "low",
+      "reasons": [
+        "Approved RDP service is reachable"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "low",
+        "finding": "Approved RDP service is reachable",
+        "recommendation": "Keep access restricted to trusted networks, VPN, or a remote access gateway."
+      }
+    ]
+  },
+  {
+    "host": "192.168.113.10",
+    "port": 3389,
+    "timestamp": "2026-04-20T08:15:12Z",
+    "tcp_reachable": true,
+    "status": "open",
+    "response_time_ms": 28.77,
+    "rdp_detected": true,
+    "rdp_negotiation": "ok",
+    "selected_protocol": "credssp_nla",
+    "tls_supported": true,
+    "nla_required": true,
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": null,
+    "risk": {
+      "score": 25,
+      "level": "low",
+      "reasons": [
+        "Approved RDP service is reachable"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "low",
+        "finding": "Approved RDP service is reachable",
+        "recommendation": "Keep access restricted to trusted networks, VPN, or a remote access gateway."
+      }
+    ]
+  },
+  {
+    "host": "192.168.113.20",
+    "port": 3389,
+    "timestamp": "2026-04-20T08:15:15Z",
+    "tcp_reachable": false,
+    "status": "closed_or_unreachable",
+    "response_time_ms": 1002.11,
+    "rdp_detected": false,
+    "rdp_negotiation": "timeout",
+    "selected_protocol": null,
+    "tls_supported": "unknown",
+    "nla_required": "unknown",
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": "timeout",
+    "risk": {
+      "score": 0,
+      "level": "low",
+      "reasons": [
+        "RDP TCP port is not reachable"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "low",
+        "finding": "No major issue detected",
+        "recommendation": "Continue monitoring RDP exposure and compare future scans against a baseline."
+      }
+    ]
+  },
+  {
+    "host": "192.168.113.30",
+    "port": 3389,
+    "timestamp": "2026-04-20T08:15:16Z",
+    "tcp_reachable": false,
+    "status": "closed_or_unreachable",
+    "response_time_ms": 3.64,
+    "rdp_detected": false,
+    "rdp_negotiation": "connection_refused",
+    "selected_protocol": null,
+    "tls_supported": "unknown",
+    "nla_required": "unknown",
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": "connection_refused",
+    "risk": {
+      "score": 0,
+      "level": "low",
+      "reasons": [
+        "RDP TCP port is not reachable"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "low",
+        "finding": "No major issue detected",
+        "recommendation": "Continue monitoring RDP exposure and compare future scans against a baseline."
+      }
+    ]
+  },
+  {
+    "host": "192.168.113.40",
+    "port": 3389,
+    "timestamp": "2026-04-20T08:15:18Z",
+    "tcp_reachable": true,
+    "status": "open",
+    "response_time_ms": 42.93,
+    "rdp_detected": true,
+    "rdp_negotiation": "ok",
+    "selected_protocol": "standard_rdp",
+    "tls_supported": false,
+    "nla_required": false,
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": null,
+    "risk": {
+      "score": 100,
+      "level": "high",
+      "reasons": [
+        "RDP is reachable on a non-approved host",
+        "NLA is not required",
+        "TLS support was not detected"
+      ]
+    },
+    "policy": {
+      "status": "fail",
+      "violations": [
+        "RDP is reachable on a non-approved host",
+        "Risk score 100 exceeds maximum allowed value 45",
+        "NLA requirement could not be verified",
+        "TLS requirement could not be verified"
+      ],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "high",
+        "finding": "RDP is reachable on a non-approved host",
+        "recommendation": "Disable RDP on this host or add it to the approved inventory after review."
+      },
+      {
+        "priority": "high",
+        "finding": "NLA is not required",
+        "recommendation": "Enable Network Level Authentication where supported."
+      },
+      {
+        "priority": "high",
+        "finding": "TLS support was not detected",
+        "recommendation": "Enable TLS for RDP and disable legacy security modes where possible."
+      }
+    ]
+  },
+  {
+    "host": "192.168.113.50",
+    "port": 3389,
+    "timestamp": "2026-04-20T08:15:21Z",
+    "tcp_reachable": false,
+    "status": "closed_or_unreachable",
+    "response_time_ms": 2.91,
+    "rdp_detected": false,
+    "rdp_negotiation": "connection_refused",
+    "selected_protocol": null,
+    "tls_supported": "unknown",
+    "nla_required": "unknown",
+    "rdp_failure_reason": null,
+    "auth_test": "not_attempted",
+    "screenshot": null,
+    "error": "connection_refused",
+    "risk": {
+      "score": 0,
+      "level": "low",
+      "reasons": [
+        "RDP TCP port is not reachable"
+      ]
+    },
+    "policy": {
+      "status": "pass",
+      "violations": [],
+      "warnings": []
+    },
+    "recommendations": [
+      {
+        "priority": "low",
+        "finding": "No major issue detected",
+        "recommendation": "Continue monitoring RDP exposure and compare future scans against a baseline."
+      }
+    ]
+  }
+]

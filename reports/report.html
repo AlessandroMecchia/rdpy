@@ -1,0 +1,150 @@
+
+    <!doctype html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>RDP Defense Report</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 40px;
+                line-height: 1.5;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 16px;
+                margin-bottom: 32px;
+                font-size: 14px;
+            }
+            th, td {
+                border: 1px solid #ccc;
+                padding: 8px;
+                vertical-align: top;
+            }
+            th {
+                background: #f2f2f2;
+            }
+            img {
+                max-width: 900px;
+                width: 100%;
+                border: 1px solid #ddd;
+                margin-bottom: 24px;
+            }
+            .summary {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+            .card {
+                border: 1px solid #ccc;
+                padding: 12px;
+                border-radius: 8px;
+                background: #fafafa;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>RDP Defense Report</h1>
+
+        <h2>Executive Summary</h2>
+        <div class="summary">
+            <div class="card"><strong>Hosts analyzed</strong><br>3</div>
+            <div class="card"><strong>RDP reachable</strong><br>1</div>
+            <div class="card"><strong>RDP detected</strong><br>1</div>
+            <div class="card"><strong>Policy failures</strong><br>0</div>
+            <div class="card"><strong>Policy warnings</strong><br>0</div>
+            <div class="card"><strong>Highest risk score</strong><br>45</div>
+        </div>
+
+        <h2>Audit Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Host</th>
+                    <th>Port</th>
+                    <th>Status</th>
+                    <th>RDP detected</th>
+                    <th>Protocol</th>
+                    <th>NLA</th>
+                    <th>TLS</th>
+                    <th>Response ms</th>
+                    <th>Risk level</th>
+                    <th>Risk score</th>
+                    <th>Policy</th>
+                    <th>Screenshot</th>
+                    <th>Recommendations</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td>127.0.0.1</td>
+            <td>1</td>
+            <td>closed_or_unreachable</td>
+            <td>False</td>
+            <td>None</td>
+            <td>unknown</td>
+            <td>unknown</td>
+            <td>2.01</td>
+            <td>low</td>
+            <td>0</td>
+            <td>pass</td>
+            <td>No</td>
+            <td><ul><li><strong>low</strong>: Continue monitoring RDP exposure and compare future scans against a baseline.</li></ul></td>
+        </tr>
+        
+
+        <tr>
+            <td>192.168.113.250</td>
+            <td>3389</td>
+            <td>closed_or_unreachable</td>
+            <td>False</td>
+            <td>None</td>
+            <td>unknown</td>
+            <td>unknown</td>
+            <td>3008.33</td>
+            <td>low</td>
+            <td>0</td>
+            <td>pass</td>
+            <td>No</td>
+            <td><ul><li><strong>low</strong>: Continue monitoring RDP exposure and compare future scans against a baseline.</li></ul></td>
+        </tr>
+        
+
+        <tr>
+            <td>192.168.113.4</td>
+            <td>3389</td>
+            <td>open</td>
+            <td>True</td>
+            <td>tls</td>
+            <td>False</td>
+            <td>True</td>
+            <td>44.18</td>
+            <td>medium</td>
+            <td>45</td>
+            <td>pass</td>
+            <td>No</td>
+            <td><ul><li><strong>medium</strong>: Restrict RDP access to trusted networks, VPN, or a remote access gateway.</li><li><strong>low</strong>: Maintain an approved inventory of systems allowed to expose RDP.</li><li><strong>medium</strong>: Verify that Network Level Authentication is enabled where supported.</li></ul></td>
+        </tr>
+        
+            </tbody>
+        </table>
+
+        <h2>Baseline Changes</h2>
+        <p>No baseline changes provided or no changes detected.</p>
+
+        <h2>Plots</h2>
+        <p>No plots provided.</p>
+
+        <h2>Limitations</h2>
+        <ul>
+            <li>This tool performs authorized defensive checks only.</li>
+            <li>The risk score is configurational and does not prove exploitability.</li>
+            <li>NLA and TLS detection are best-effort and may be reported as unknown.</li>
+            <li>No brute force, MITM, exploit, or honeypot behavior is implemented.</li>
+        </ul>
+    </body>
+    </html>
+    

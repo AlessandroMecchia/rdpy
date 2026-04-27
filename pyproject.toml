@@ -20,7 +20,7 @@ rdpy-audit = "rdpy.tools.audit:main"
 rdpy-rdpinfo = "rdpy.tools.rdpinfo:main"
 rdpy-visualize = "rdpy.tools.visualize:main"
 rdpy-compare = "rdpy.tools.compare:main"
-rdpy-report = "rdpy.tools.report:main"
+rdpy-report = "rdpy.tools.reports:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

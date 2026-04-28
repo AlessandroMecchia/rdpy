@@ -1,150 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RDP Defense Report</title>
+    <style>
+        :root {
+            --bg: #f7f8fa;
+            --panel: #ffffff;
+            --text: #20242a;
+            --muted: #667085;
+            --line: #d9dee8;
+            --header: #2f343d;
+            --good: #207245;
+            --bad: #b42318;
+            --warn: #a15c07;
+            --info: #245b96;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.45;
+        }
+        .page {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+        }
+        header {
+            background: var(--header);
+            color: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        h1, h2, h3 { margin: 0; }
+        h1 { font-size: 30px; }
+        h2 { font-size: 20px; margin: 28px 0 12px; }
+        h3 { font-size: 15px; margin-bottom: 12px; }
+        .subtitle { color: #d6dae1; margin-top: 8px; }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+        }
+        .card, .plot {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+        }
+        .card {
+            padding: 14px 16px;
+        }
+        .metric {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .table-wrap {
+            overflow-x: auto;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            border-bottom: 1px solid var(--line);
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #eef1f5;
+            color: #343a44;
+            font-size: 12px;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: 0; }
+        .target span, .muted { color: var(--muted); }
+        .number, .score { font-variant-numeric: tabular-nums; }
+        .score {
+            display: inline-block;
+            margin-left: 6px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 22px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid #ccd3dd;
+            background: #f3f5f8;
+            color: #344054;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .badge-good, .badge-pass, .badge-low, .badge-info {
+            border-color: #b8dfca;
+            background: #eaf7ef;
+            color: var(--good);
+        }
+        .badge-bad, .badge-fail, .badge-high {
+            border-color: #f0b7b2;
+            background: #fff0ee;
+            color: var(--bad);
+        }
+        .badge-medium, .badge-warning {
+            border-color: #efd09a;
+            background: #fff7e8;
+            color: var(--warn);
+        }
+        .badge-open {
+            border-color: #b8cdec;
+            background: #eef5ff;
+            color: var(--info);
+        }
+        .badge-closed-or-unreachable, .badge-unknown {
+            border-color: #d5dae3;
+            background: #f5f6f8;
+            color: var(--muted);
+        }
+        .recommendation-cell {
+            min-width: 300px;
+            max-width: 440px;
+        }
+        .recommendations, .findings {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .recommendations li {
+            margin-bottom: 8px;
+        }
+        .recommendations li:last-child {
+            margin-bottom: 0;
+        }
+        .recommendations span:not(.badge) {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+        }
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 16px;
+        }
+        .plot {
+            padding: 14px;
+        }
+        .plot img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: white;
+        }
+        .empty {
+            background: var(--panel);
+            border: 1px dashed #b8c0cc;
+            border-radius: 8px;
+            color: var(--muted);
+            padding: 14px;
+        }
+        code {
+            background: #eef1f5;
+            border-radius: 4px;
+            padding: 2px 5px;
+        }
+        @media (max-width: 720px) {
+            .page { padding: 18px 12px 32px; }
+            header { padding: 18px; }
+            h1 { font-size: 24px; }
+            .plot-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header>
+            <h1>RDP Defense Report</h1>
+            <p class="subtitle">Audit summary, policy status, baseline changes, and generated plots.</p>
+        </header>
 
-    <!doctype html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>RDP Defense Report</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 40px;
-                line-height: 1.5;
-            }
-            table {
-                border-collapse: collapse;
-                width: 100%;
-                margin-top: 16px;
-                margin-bottom: 32px;
-                font-size: 14px;
-            }
-            th, td {
-                border: 1px solid #ccc;
-                padding: 8px;
-                vertical-align: top;
-            }
-            th {
-                background: #f2f2f2;
-            }
-            img {
-                max-width: 900px;
-                width: 100%;
-                border: 1px solid #ddd;
-                margin-bottom: 24px;
-            }
-            .summary {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 12px;
-                margin-bottom: 24px;
-            }
-            .card {
-                border: 1px solid #ccc;
-                padding: 12px;
-                border-radius: 8px;
-                background: #fafafa;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>RDP Defense Report</h1>
+        <section class="summary">
+            <div class="card"><div class="metric">Hosts analyzed</div><div class="value">6</div></div>
+            <div class="card"><div class="metric">RDP reachable</div><div class="value">5</div></div>
+            <div class="card"><div class="metric">RDP detected</div><div class="value">4</div></div>
+            <div class="card"><div class="metric">Policy failures</div><div class="value">3</div></div>
+            <div class="card"><div class="metric">Policy warnings</div><div class="value">0</div></div>
+            <div class="card"><div class="metric">High risk hosts</div><div class="value">2</div></div>
+            <div class="card"><div class="metric">Highest risk score</div><div class="value">80</div></div>
+        </section>
 
-        <h2>Executive Summary</h2>
-        <div class="summary">
-            <div class="card"><strong>Hosts analyzed</strong><br>3</div>
-            <div class="card"><strong>RDP reachable</strong><br>1</div>
-            <div class="card"><strong>RDP detected</strong><br>1</div>
-            <div class="card"><strong>Policy failures</strong><br>0</div>
-            <div class="card"><strong>Policy warnings</strong><br>0</div>
-            <div class="card"><strong>Highest risk score</strong><br>45</div>
-        </div>
+        <h2>Key Findings</h2>
+        <ul class="findings"><li>192.168.113.4:3389 fails policy with risk score 50.</li><li>192.168.113.20:3389 fails policy with risk score 80.</li><li>192.168.113.60:3389 fails policy with risk score 55.</li><li>192.168.113.20:3389: New RDP exposure detected.</li><li>192.168.113.20:3389: Policy status changed to fail.</li><li>192.168.113.30:3389: New RDP exposure detected.</li><li>192.168.113.4:3389: NLA requirement weakened.</li><li>192.168.113.4:3389: Policy status changed to fail.</li></ul>
 
         <h2>Audit Results</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Status</th>
+                        <th>RDP</th>
+                        <th>Protocol</th>
+                        <th>NLA</th>
+                        <th>TLS</th>
+                        <th>Response ms</th>
+                        <th>Risk</th>
+                        <th>Policy</th>
+                        <th>Recommendations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr class="risk-row-high">
+            <td class="target"><strong>192.168.113.20</strong><span>:3389</span></td>
+            <td><span class="badge badge-open">open</span></td>
+            <td><span class="badge badge-good">yes</span></td>
+            <td>tls</td>
+            <td><span class="badge badge-bad">not required</span></td>
+            <td><span class="badge badge-good">detected</span></td>
+            <td class="number">47.88</td>
+            <td><span class="badge badge-high">high</span> <span class="score">80</span></td>
+            <td><span class="badge badge-fail">fail</span></td>
+            <td class="recommendation-cell"><ul class="recommendations"><li><span class="badge badge-high">high</span> <strong>RDP is reachable on a non-approved host</strong><span>Disable RDP on this host or add it to the approved inventory after review.</span></li><li><span class="badge badge-high">high</span> <strong>NLA is not required</strong><span>Enable Network Level Authentication where supported.</span></li></ul></td>
+        </tr>
+        
+
+        <tr class="risk-row-high">
+            <td class="target"><strong>192.168.113.60</strong><span>:3389</span></td>
+            <td><span class="badge badge-open">open</span></td>
+            <td><span class="badge badge-good">yes</span></td>
+            <td>credssp_nla</td>
+            <td><span class="badge badge-good">required</span></td>
+            <td><span class="badge badge-good">detected</span></td>
+            <td class="number">41.26</td>
+            <td><span class="badge badge-high">high</span> <span class="score">55</span></td>
+            <td><span class="badge badge-fail">fail</span></td>
+            <td class="recommendation-cell"><ul class="recommendations"><li><span class="badge badge-high">high</span> <strong>RDP is reachable on a non-approved host</strong><span>Disable RDP on this host or add it to the approved inventory after review.</span></li></ul></td>
+        </tr>
+        
+
+        <tr class="risk-row-medium">
+            <td class="target"><strong>192.168.113.4</strong><span>:3389</span></td>
+            <td><span class="badge badge-open">open</span></td>
+            <td><span class="badge badge-good">yes</span></td>
+            <td>tls</td>
+            <td><span class="badge badge-bad">not required</span></td>
+            <td><span class="badge badge-good">detected</span></td>
+            <td class="number">35.72</td>
+            <td><span class="badge badge-medium">medium</span> <span class="score">50</span></td>
+            <td><span class="badge badge-fail">fail</span></td>
+            <td class="recommendation-cell"><ul class="recommendations"><li><span class="badge badge-low">low</span> <strong>Approved RDP service is reachable</strong><span>Keep access restricted to trusted networks, VPN, or a remote access gateway.</span></li><li><span class="badge badge-high">high</span> <strong>NLA is not required</strong><span>Enable Network Level Authentication where supported.</span></li></ul></td>
+        </tr>
+        
+
+        <tr class="risk-row-medium">
+            <td class="target"><strong>192.168.113.30</strong><span>:3389</span></td>
+            <td><span class="badge badge-open">open</span></td>
+            <td><span class="badge badge-bad">no</span></td>
+            <td>-</td>
+            <td><span class="badge badge-unknown">unknown</span></td>
+            <td><span class="badge badge-unknown">unknown</span></td>
+            <td class="number">12.64</td>
+            <td><span class="badge badge-medium">medium</span> <span class="score">45</span></td>
+            <td><span class="badge badge-pass">pass</span></td>
+            <td class="recommendation-cell"><ul class="recommendations"><li><span class="badge badge-medium">medium</span> <strong>TCP port is reachable, but RDP was not confirmed</strong><span>Verify the service listening on this port and close it if it is not required.</span></li></ul></td>
+        </tr>
+        
+
+        <tr class="risk-row-low">
+            <td class="target"><strong>192.168.113.10</strong><span>:3389</span></td>
+            <td><span class="badge badge-open">open</span></td>
+            <td><span class="badge badge-good">yes</span></td>
+            <td>credssp_nla</td>
+            <td><span class="badge badge-good">required</span></td>
+            <td><span class="badge badge-good">detected</span></td>
+            <td class="number">29.03</td>
+            <td><span class="badge badge-low">low</span> <span class="score">25</span></td>
+            <td><span class="badge badge-pass">pass</span></td>
+            <td class="recommendation-cell"><ul class="recommendations"><li><span class="badge badge-low">low</span> <strong>Approved RDP service is reachable</strong><span>Keep access restricted to trusted networks, VPN, or a remote access gateway.</span></li></ul></td>
+        </tr>
+        
+
+        <tr class="risk-row-low">
+            <td class="target"><strong>192.168.113.40</strong><span>:3389</span></td>
+            <td><span class="badge badge-closed-or-unreachable">closed_or_unreachable</span></td>
+            <td><span class="badge badge-bad">no</span></td>
+            <td>-</td>
+            <td><span class="badge badge-unknown">unknown</span></td>
+            <td><span class="badge badge-unknown">unknown</span></td>
+            <td class="number">2.18</td>
+            <td><span class="badge badge-low">low</span> <span class="score">0</span></td>
+            <td><span class="badge badge-pass">pass</span></td>
+            <td class="recommendation-cell"><ul class="recommendations"><li><span class="badge badge-low">low</span> <strong>No major issue detected</strong><span>Continue monitoring RDP exposure and compare future scans against a baseline.</span></li></ul></td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Baseline Changes</h2>
+        
+    <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>Host</th>
-                    <th>Port</th>
-                    <th>Status</th>
-                    <th>RDP detected</th>
-                    <th>Protocol</th>
-                    <th>NLA</th>
-                    <th>TLS</th>
-                    <th>Response ms</th>
-                    <th>Risk level</th>
-                    <th>Risk score</th>
-                    <th>Policy</th>
-                    <th>Screenshot</th>
-                    <th>Recommendations</th>
+                    <th>Target</th>
+                    <th>Change</th>
+                    <th>Severity</th>
+                    <th>Field</th>
+                    <th>Before</th>
+                    <th>After</th>
                 </tr>
             </thead>
             <tbody>
-                
         <tr>
-            <td>127.0.0.1</td>
-            <td>1</td>
-            <td>closed_or_unreachable</td>
-            <td>False</td>
-            <td>None</td>
-            <td>unknown</td>
-            <td>unknown</td>
-            <td>2.01</td>
-            <td>low</td>
-            <td>0</td>
+            <td class="target"><strong>192.168.113.20:3389</strong></td>
+            <td>Policy status changed to fail</td>
+            <td><span class="badge badge-high">high</span></td>
+            <td>policy_status</td>
             <td>pass</td>
-            <td>No</td>
-            <td><ul><li><strong>low</strong>: Continue monitoring RDP exposure and compare future scans against a baseline.</li></ul></td>
+            <td>fail</td>
         </tr>
         
-
         <tr>
-            <td>192.168.113.250</td>
-            <td>3389</td>
+            <td class="target"><strong>192.168.113.20:3389</strong></td>
+            <td>New RDP exposure detected</td>
+            <td><span class="badge badge-high">high</span></td>
+            <td>status</td>
             <td>closed_or_unreachable</td>
-            <td>False</td>
-            <td>None</td>
-            <td>unknown</td>
-            <td>unknown</td>
-            <td>3008.33</td>
-            <td>low</td>
-            <td>0</td>
-            <td>pass</td>
-            <td>No</td>
-            <td><ul><li><strong>low</strong>: Continue monitoring RDP exposure and compare future scans against a baseline.</li></ul></td>
-        </tr>
-        
-
-        <tr>
-            <td>192.168.113.4</td>
-            <td>3389</td>
             <td>open</td>
-            <td>True</td>
-            <td>tls</td>
-            <td>False</td>
-            <td>True</td>
-            <td>44.18</td>
-            <td>medium</td>
-            <td>45</td>
-            <td>pass</td>
-            <td>No</td>
-            <td><ul><li><strong>medium</strong>: Restrict RDP access to trusted networks, VPN, or a remote access gateway.</li><li><strong>low</strong>: Maintain an approved inventory of systems allowed to expose RDP.</li><li><strong>medium</strong>: Verify that Network Level Authentication is enabled where supported.</li></ul></td>
         </tr>
         
-            </tbody>
+        <tr>
+            <td class="target"><strong>192.168.113.30:3389</strong></td>
+            <td>New RDP exposure detected</td>
+            <td><span class="badge badge-high">high</span></td>
+            <td>status</td>
+            <td>closed_or_unreachable</td>
+            <td>open</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.4:3389</strong></td>
+            <td>NLA requirement weakened</td>
+            <td><span class="badge badge-high">high</span></td>
+            <td>nla_required</td>
+            <td>True</td>
+            <td>False</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.4:3389</strong></td>
+            <td>Policy status changed to fail</td>
+            <td><span class="badge badge-high">high</span></td>
+            <td>policy_status</td>
+            <td>pass</td>
+            <td>fail</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.20:3389</strong></td>
+            <td>Risk score increased</td>
+            <td><span class="badge badge-medium">medium</span></td>
+            <td>risk_score</td>
+            <td>0</td>
+            <td>80</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.30:3389</strong></td>
+            <td>Risk score increased</td>
+            <td><span class="badge badge-medium">medium</span></td>
+            <td>risk_score</td>
+            <td>0</td>
+            <td>45</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.4:3389</strong></td>
+            <td>Risk score increased</td>
+            <td><span class="badge badge-medium">medium</span></td>
+            <td>risk_score</td>
+            <td>25</td>
+            <td>50</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.4:3389</strong></td>
+            <td>Selected RDP protocol changed</td>
+            <td><span class="badge badge-medium">medium</span></td>
+            <td>selected_protocol</td>
+            <td>credssp_nla</td>
+            <td>tls</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.50:3389</strong></td>
+            <td>Target was present in baseline but missing in current scan</td>
+            <td><span class="badge badge-medium">medium</span></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.60:3389</strong></td>
+            <td>Target is new in current scan</td>
+            <td><span class="badge badge-medium">medium</span></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.40:3389</strong></td>
+            <td>Policy status improved</td>
+            <td><span class="badge badge-info">info</span></td>
+            <td>policy_status</td>
+            <td>fail</td>
+            <td>pass</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.40:3389</strong></td>
+            <td>Risk score decreased</td>
+            <td><span class="badge badge-info">info</span></td>
+            <td>risk_score</td>
+            <td>100</td>
+            <td>0</td>
+        </tr>
+        
+        <tr>
+            <td class="target"><strong>192.168.113.40:3389</strong></td>
+            <td>RDP service is no longer reachable</td>
+            <td><span class="badge badge-info">info</span></td>
+            <td>status</td>
+            <td>open</td>
+            <td>closed_or_unreachable</td>
+        </tr>
+        </tbody>
         </table>
-
-        <h2>Baseline Changes</h2>
-        <p>No baseline changes provided or no changes detected.</p>
+    </div>
+    
 
         <h2>Plots</h2>
-        <p>No plots provided.</p>
+        <div class="plot-grid">
+        <section class="plot">
+            <h3>Policy Status</h3>
+            <a href="plots/policy_status.png">
+                <img src="plots/policy_status.png" alt="Policy Status">
+            </a>
+        </section>
+        
+
+        <section class="plot">
+            <h3>Rdp Status</h3>
+            <a href="plots/rdp_status.png">
+                <img src="plots/rdp_status.png" alt="Rdp Status">
+            </a>
+        </section>
+        
+
+        <section class="plot">
+            <h3>Response Time</h3>
+            <a href="plots/response_time.png">
+                <img src="plots/response_time.png" alt="Response Time">
+            </a>
+        </section>
+        
+
+        <section class="plot">
+            <h3>Risk By Host</h3>
+            <a href="plots/risk_by_host.png">
+                <img src="plots/risk_by_host.png" alt="Risk By Host">
+            </a>
+        </section>
+        
+
+        <section class="plot">
+            <h3>Risk Distribution</h3>
+            <a href="plots/risk_distribution.png">
+                <img src="plots/risk_distribution.png" alt="Risk Distribution">
+            </a>
+        </section>
+        </div>
 
         <h2>Limitations</h2>
-        <ul>
+        <ul class="findings">
             <li>This tool performs authorized defensive checks only.</li>
-            <li>The risk score is configurational and does not prove exploitability.</li>
+            <li>The risk score is configurable and does not prove exploitability.</li>
             <li>NLA and TLS detection are best-effort and may be reported as unknown.</li>
             <li>No brute force, MITM, exploit, or honeypot behavior is implemented.</li>
         </ul>
-    </body>
-    </html>
-    
+    </main>
+</body>
+</html>
